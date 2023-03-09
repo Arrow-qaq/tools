@@ -53,16 +53,6 @@ namespace NSerializaTion
         return 0;
     }
 
-    template <typename T>
-    int setVar(T& t, const QString& key, QVariantMap& var)
-    {
-        if (!var.contains(key))
-        {
-            var.insert(key,QVariant(t));
-        }
-        return 0;
-    }
-
     template <typename... Args>
     void varToObject(const QStringList& names, const QVariant& var, Args&... args)
     {
@@ -90,8 +80,7 @@ namespace NSerializaTion
         QVariantMap mapVar;
 
         int index = 0;
-        std::initializer_list<int>{(setVar(args, names[index++], mapVar), 0)...};
-        //std::initializer_list<int>{(mapVar.insert(names[index++], QVariant(args)), 0)...};
+        std::initializer_list<int>{(mapVar.insert(names[index++], QVariant(args)), 0)...};
 
         var = mapVar;
     }
@@ -100,7 +89,7 @@ namespace NSerializaTion
 
 #define REG_SERIALZA(...)\
 private:\
-friend class NSerializaTion::serializaHelper;            \
+    friend class NSerializaTion::serializaHelper;            \
     QStringList _names = QString(#__VA_ARGS__).remove(QRegExp("\\s")).split(",");                          \
     void getValue(const QVariant& var) { NSerializaTion::varToObject(_names, var, __VA_ARGS__); }\
-void setValue(QVariant& var) { NSerializaTion::objectToVar(_names, var, __VA_ARGS__); }
+    void setValue(QVariant& var) { NSerializaTion::objectToVar(_names, var, __VA_ARGS__); }
